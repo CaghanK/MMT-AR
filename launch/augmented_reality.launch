@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<launch>
+  
+  <node pkg="joy" type="joy_node" name="joy_node" output="screen"></node>
+  <node pkg="mobot_start" type="joy_to_local_vel.py" name="joy_to_sim" output="screen"></node>
+  <node pkg="mobot_start" type="augmented_reality.py" name="augmented_reality" output="screen"></node>
+
+</launch>
+  
+  
