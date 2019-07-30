@@ -13,7 +13,7 @@ r = rospy.Rate(10)
 
 
 def callback(falcon_data):
-    MAX_LIN_VEL = 0.5
+    MAX_LIN_VEL = 0.25
     MAX_ANG_VEL = 3.1416/2
 
     
@@ -22,8 +22,8 @@ def callback(falcon_data):
     joy_z = 0 """
     #joy_z = joy_data.axes[3]
     
-    msg_vel.x = falcon_data.X / 50
-    msg_vel.y = -falcon_data.Z / 50
+    msg_vel.x = (falcon_data.X / 50) * MAX_LIN_VEL
+    msg_vel.y = (-falcon_data.Z / 50) * MAX_LIN_VEL
     msg_vel.z = 0
     
     """ msg_vel.x = map(joy_x, -50, 50, -MAX_LIN_VEL, MAX_LIN_VEL)
@@ -38,7 +38,7 @@ def map(input, in_min, in_max, out_min, out_max):
 
 rospy.Subscriber("/falconPos", falconPos, callback)
 #rospy.Subscriber("/joy", Joy, callback)
-pub_simVel = rospy.Publisher("/sim/mobot_vel", Vector3, queue_size = 1)
+pub_simVel = rospy.Publisher("/proxy/vel", Vector3, queue_size = 1)
 
 
 while True:

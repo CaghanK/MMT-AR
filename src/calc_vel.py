@@ -68,7 +68,7 @@ def callback(encoder_data):
 
 
 rospy.Subscriber("encoders", Vector3Stamped, callback) # gets encoder counter data
-pub_vel = rospy.Publisher("/motor_vel", Vector3 , queue_size = 1) # publish velocity data
+pub_vel = rospy.Publisher("/mobot/motor_vel_measured", Vector3 , queue_size = 1) # publish velocity data
     
 
 while True:

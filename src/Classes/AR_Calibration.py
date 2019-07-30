@@ -12,24 +12,27 @@ from geometry_msgs.msg import Pose2D
 # Gets proxy pose from simulink
 # Publishes proxy pose to gazebo
 # Publishes delayed proxy pose as slave pose to gazebo
-class MobotAR:
+class ARCalibration:
 
     def __init__(self, rate=30):
-        rospy.init_node("augmented_reality")
+        rospy.init_node("ar_calibration")
         self.r = rospy.Rate(rate)
         # Load obj file to be projected
         self.obj = OBJ('/home/caghank/ck_ws/src/mobot_start/src/Models/mobot_angle_corrected.obj', swapyz=False)
         # Initialize camera
         self.cap = cv2.VideoCapture(1) # video device 0 for laptop cam, 1 for external cam
-        # Transparency of the virtual model
-        self.alpha = 0.3
+        self.alpha = 0.5
+        self.calib_image = None
+        self.img_init()
+        
+        self.calib_points = np.array([[2.0, 6.0], [2.0, 10.0], [-3.0, 11.0], [-1.0, 7.0]])
         # Offset values to match the virtual and the real robot positions
-        self.offset_x = -2.5
-        self.offset_y = 3.5 - 10.0
+        self.offset_x = 0.0
+        self.offset_y = 0.0
         # Scale value to match the virtual and the real workspace
-        self.pose_scale_x = 2.0 #default: 1.03
-        self.pose_scale_y = 2.0 #default: 1.03
-        self.pose_scale_z = 1.03
+        self.pose_scale_x = 1.03
+        self.pose_scale_y = 1.0
+        self.pose_scale_z = 1.0
         # Proxy pose holder
         self.proxy_pose = Pose2D()
         # Camera calibration matrix
@@ -39,33 +42,34 @@ class MobotAR:
         self.perspective_correction_mat = np.array([[1, 0, 0], [0, np.cos(np.deg2rad(self.perspective_correction_ang)), np.sin(np.deg2rad(self.perspective_correction_ang))], [0, -np.sin(np.deg2rad(self.perspective_correction_ang)), np.cos(np.deg2rad(self.perspective_correction_ang))]])
         # Matrix variables
         self.scale_mat = np.eye(3) * 2.3
-        #self.rot_mat = np.eye(3)
-        #self.transl_vec = np.array([[0.0, 0.0, 0.0]]).T
-        #self.rot_and_transl = np.concatenate((self.rot_mat, self.transl_vec), axis=1)
         self.projection_mat = np.zeros(shape=(3, 4))
-        # Subscriber to get pose
-        self.sub = rospy.Subscriber("/proxy/pose_nondelayed", Pose2D, self.callback, queue_size=1)
-        # Publisher to send image (possibly to rviz)
-        #self.pub = rospy.Publisher("/to_rviz/AR_img", Image, queue_size=1)
 
 
-
-
-    # Subscriber callback
-    def callback(self, msg_in):
-        self.proxy_pose = msg_in
-
-    def update(self):
-        self.calc_projection_matrix()
-        # Read new image from camera
+    def img_init(self):
         ret, frame = self.cap.read()
         if not ret:
             print ("Unable to capture video")
-            return 
-        frame_bg = frame.copy()
-        frame = self.render(frame)
-        frame_combined = cv2.addWeighted(frame, self.alpha, frame_bg, 1 - self.alpha, 0)
-        cv2.imshow('frame', frame_combined)
+            return
+        self.calib_image = frame
+
+    def update(self):
+        self.img_init()
+        AR_background = self.calib_image.copy()
+
+        
+
+        for calib_point_num in range(4):
+            x = self.calib_points[calib_point_num, 0]
+            y = self.calib_points[calib_point_num, 1]
+            self.proxy_pose.x = x
+            self.proxy_pose.y = y
+
+            self.calc_projection_matrix()
+            self.calib_image = self.render(self.calib_image)
+
+        transparent_img = cv2.addWeighted(AR_background, self.alpha, self.calib_image, 1 - self.alpha, 0)
+        cv2.imshow('frame', transparent_img)
+        #cv2.imshow('frame', self.calib_image)
         cv2.waitKey(1)
 
     # Renders the object on top of the camera image for given projection matrix
@@ -80,7 +84,7 @@ class MobotAR:
             dst = cv2.perspectiveTransform(points.reshape(-1, 1, 3), self.projection_mat)
             imgpts = np.int32(dst)
             
-            cv2.fillConvexPoly(img, imgpts, (0, 0, 255)) #default: (0, 0, 255, 255)
+            cv2.fillConvexPoly(img, imgpts, (0, 0, 255, 255))
         return img
 
     def calc_projection_matrix(self):

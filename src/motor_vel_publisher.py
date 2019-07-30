@@ -22,9 +22,9 @@ pub_motorVel = rospy.Publisher("/motor_ref", Vector3, queue_size = 1) # default:
 while True:
     while not rospy.is_shutdown():
         msg_out = Vector3()
-        msg_out.x = 3
+        msg_out.x = -6
         msg_out.y = -8
-        msg_out.z = 6
+        msg_out.z = 3
         pub_motorVel.publish(msg_out)
         r.sleep()
 

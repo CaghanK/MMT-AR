@@ -3,11 +3,19 @@
 import numpy as np
 import math
 
-def inverse_kinematics(x, y, z):
-    task_space = np.array([x, y, z])
+def inverse_kinematics_SI(x, y, theta):
+    task_space = np.array([x, y, theta])
+    J_matrix = np.array([[ 0.66666667,  0,              0.04333333], 
+                         [ -0.33333333, 0.57735027,    0.04333333], 
+                         [ -0.33333333, -0.57735027,     0.04333333]])
+    joint_space = np.dot(J_matrix, task_space) # J_matrix @ task_space gives syntax error
+    return joint_space/0.024 # wheel radius
+
+def inverse_kinematics(x, y, theta):
+    task_space = np.array([x, y, theta])
     J_matrix = np.array([[ 0.66666667,  0,              0.33333333], 
-                         [ -0.33333333, 0.57735027,    0.33333333], 
-                         [ -0.33333333, -0.57735027,     0.33333333]])
+                            [ -0.33333333, 0.57735027,    0.33333333], 
+                            [ -0.33333333, -0.57735027,     0.33333333]])
     joint_space = np.dot(J_matrix, task_space) # J_matrix @ task_space gives syntax error
     return 255 * joint_space
 

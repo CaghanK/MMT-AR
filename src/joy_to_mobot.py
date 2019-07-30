@@ -12,6 +12,13 @@ msg_inv = Vector3()
 msg_fwd = Vector3()
 r = rospy.Rate(100)
 
+def stop_motors():
+    msg_zero = Vector3()
+    pub_motorVel.publish(msg_zero)
+    pub_motorVel.publish(msg_zero)
+    pub_motorVel.publish(msg_zero)
+rospy.on_shutdown(stop_motors)
+
 
 def callback(joy_data):
 
@@ -38,4 +45,5 @@ while True:
         msg_fwd.z = robot_vel_array[2]
         pub_mobotVel.publish(msg_fwd) """
         r.sleep()
+
 

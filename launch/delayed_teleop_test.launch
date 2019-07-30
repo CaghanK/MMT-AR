@@ -4,7 +4,9 @@
   <node pkg="rosfalcon2" type="falcon_cs_pid2" name="falcon_node" output="screen"></node>
   <node pkg="mobot_start" type="falcon_joy_to_local_vel.py" name="falcon_to_local_vel" output="screen"></node>
   <node pkg="mobot_start" type="local_vel_to_pos.py" name="pose_integrator" output="screen"></node>
-  <node pkg="mobot_start" type="augmented_reality.py" name="augmented_reality" output="screen"></node>
+  <node pkg="mobot_start" type="delayed_teleop_test.py" name="augmented_reality" output="screen"></node>
+  <node pkg="mobot_start" type="delay.py" name="comm_delay" output="screen"></node>
+  <node pkg="mobot_start" type="roi_scanner.py" name="force_gen" output="screen"></node>
   <!--node pkg="mobot_start" type="force_to_falcon.py" name="force_generator" output="screen"></node-->
 </launch>
   

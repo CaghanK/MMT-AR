@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<launch>
+  <node pkg="rosfalcon2" type="falcon_cs_pid2" name="falcon_node" output="screen"></node>
+  <node pkg="mobot_start" type="falcon_joy_to_local_vel.py" name="falcon_to_local_vel" output="screen"></node>
+  <node pkg="mobot_start" type="local_vel_to_pos.py" name="pose_integrator" output="screen"></node>
+  <node pkg="mobot_start" type="augmented_reality_test.py" name="augmented_reality" output="screen"></node>
+  <node pkg="mobot_start" type="delay.py" name="comm_delay" output="screen"></node>
+  <node pkg="mobot_start" type="delayed_roi.py" name="force_gen" output="screen"></node>
+  <node pkg="tf" type="static_transform_publisher" name="target_1" args="0 1 0 0 0 0 1 world target_1 10" />
+  <node pkg="tf" type="static_transform_publisher" name="target_2" args="1 1 0 0 0 0 1 world target_2 10" />
+  <node pkg="tf" type="static_transform_publisher" name="target_3" args="1 0 0 0 0 0 1 world target_3 10" />
+
+  <!--node pkg="mobot_start" type="force_to_falcon.py" name="force_generator" output="screen"></node-->
+</launch>
+  
+  

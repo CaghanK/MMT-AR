@@ -13,27 +13,35 @@ r = rospy.Rate(10)
 
 
 def callback(joy_data):
-    MAX_LIN_VEL = 0.5
-    MAX_ANG_VEL = 3.1416/2
+    MAX_LIN_VEL = 0.1 # default:0.5
+    MAX_ANG_VEL = 3.1416/4 # default denominator:2
 
+    x_axis = joy_data.axes[0]
+    y_axis = -joy_data.axes[2]
+    button_left = joy_data.buttons[0]
+    button_mid = joy_data.buttons[1]
+    button_right = joy_data.buttons[3]
     
-    """ joy_x = falcon_data.X / 50
-    joy_y = -falcon_data.Z / 50
-    joy_z = 0 """
-    #joy_z = joy_data.axes[3]
-    
-    msg_vel.x = joy_data.axes[0] / 50
-    msg_vel.y = -joy_data.axes[2] / 50
+    if abs(x_axis) < 5.0:
+        x_axis = 0.0
+
+    if abs(y_axis) < 5.0:
+        y_axis = 0.0
+
     ang_vel = 0
-    if joy_data.buttons[0] == 1 and joy_data.buttons[3] == 0: # Turn right
+    if button_left == 1 and button_right == 0: # Turn right
         ang_vel = MAX_ANG_VEL
-    if joy_data.buttons[3] == 1 and joy_data.buttons[0] == 0: # Turn left
+    if button_right == 1 and button_left == 0: # Turn left
         ang_vel = -MAX_ANG_VEL
+
+    msg_vel.x = (x_axis / 50) * MAX_LIN_VEL
+    msg_vel.y = (y_axis / 50) * MAX_LIN_VEL
     msg_vel.z = ang_vel
-    
-    """ msg_vel.x = map(joy_x, -50, 50, -MAX_LIN_VEL, MAX_LIN_VEL)
-    msg_vel.y = map(joy_y, -50, 50, -MAX_LIN_VEL, MAX_LIN_VEL)"""
-    #msg_vel.z = map(joy_z, -50, 50, -MAX_ANG_VEL, MAX_ANG_VEL)
+
+    if button_mid == 1:
+            msg_vel.x = 0
+            msg_vel.y = 0
+            msg_vel.z = 0
 
     pub_simVel.publish(msg_vel)
 
@@ -43,7 +51,7 @@ def map(input, in_min, in_max, out_min, out_max):
 
 rospy.Subscriber("/falcon/joystick", Joy, callback)
 #rospy.Subscriber("/joy", Joy, callback)
-pub_simVel = rospy.Publisher("/sim/mobot_vel", Vector3, queue_size = 1)
+pub_simVel = rospy.Publisher("/proxy/vel", Vector3, queue_size = 1) # default topic: /sim/mobot_vel, /mobot/robot_vel_desired
 #pub_simVel = rospy.Publisher("/mobot/robot_vel", Vector3, queue_size = 1)
 
 

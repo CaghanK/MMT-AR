@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<launch>
+  <node pkg="mobot_start" type="calc_vel.py" name="calculate_velocity" output="screen"></node>
+  <node pkg="mobot_start" type="avg_filter.py" name="average_filter" output="screen"></node>
+  <node pkg="mobot_start" type="motor_control.py" name="motor_controller" output="screen"></node>
+  <node pkg="mobot_start" type="pose_control.py" name="pose_controller" output="screen"></node>
+</launch>
+  
+  

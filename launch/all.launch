@@ -1,0 +1,38 @@
+<!--
+launches nodes on two different machines
+-->
+
+<launch>
+    <machine name="slave" address="10.42.0.106" user="odroid" password="altella" env-loader="/home/alberto/at_robot_server_ros_env.sh"/>
+    <machine name="master" address="192.168.0.21" user="caghank" password="raspberry" env-loader="/home/pi/at_robot_ros_env.sh"/>
+
+    <group ns="at_robot_server">
+        <node machine="at_robot_server" pkg="at_robot_server" name="KeyController_node" type="KeyController" output="screen">
+            <param name="loop_rate" value="20" type="int"/>
+            <param name="up_key" value="56" type="int"/>
+            <param name="down_key" value="50" type="int"/>
+            <param name="left_key" value="52" type="int"/>
+            <param name="right_key" value="54" type="int"/>
+        </node>
+        <node machine="at_robot" name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+            <remap from="image" to="/image_raw"/>
+            <param name="autosize" value="true"/>
+        </node>
+    </group>
+
+    <group ns="at_robot">
+        <node machine="at_robot" pkg="uvc_camera" type="uvc_camera_node" name="uvc_camera" output="screen">
+            <param name="device" value="/dev/video0"/>  
+            <param name="width" value="640"/>
+            <param name="height" value="480"/>
+            <param name="format" value="jpeg"/>
+            <param name="fps" value="30"/>
+            <param name="auto_focus" value="False"/>
+            <param name="focus_absolute" value="0"/>
+        </node>
+        <node machine="at_robot" pkg="at_robot" type="KeyControlClient_node" name="KeyControlClient" output="screen">
+            <param name="motor_motion_time" value="100" type="int"/>
+        </node> 
+    </group>
+
+</launch>
